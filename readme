@@ -1,1 +1,0 @@
-to run as dev change the src/database host to localhost and run docker-compose up database
