@@ -202,8 +202,29 @@ async function createSchedule(newSchedule: newScheduleWithEnd) {
     )
     return response.rows;
 }
+
+async function updateStates(today:string,now:string){
+    console.log('update')
+    await pool.query(
+        `
+        UPDATE schedules
+        SET status = 'FINALIZADO'
+        WHERE date <= $1
+        AND "endTime" <= $2
+        AND status = 'AGENDADO'
+        ;`,[today,now]
+    )    
+}
+async function getScheduleList() {
+    const response = await pool.query(
+        `
+        SELECT * FROM schedules
+        WHERE status = 'AGENDADO'        
+        ;`)
+        return response.rows
+}
 async function test() {
-    const test = await pool.query("SELECT * FROM schedules;")
+    const test = await pool.query("SELECT * FROM schedules ")
     console.log(test.rows)
 }
 export const repository = {
@@ -225,5 +246,7 @@ export const repository = {
     getServiceById,
     checkDayVacancy,
     test,
-    createSchedule
+    createSchedule,
+    getScheduleList,
+    updateStates
 }

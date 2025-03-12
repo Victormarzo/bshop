@@ -96,8 +96,8 @@ INSERT INTO "barberServices" ("barberId","serviceId") VALUES (1,1),(1,2),(1,3),(
 
 INSERT INTO "workingInterval" ("barberId","dayList") VALUES (1,'1,2,3,4,5,6');
 
-INSERT INTO "dayOff" ("barberId",date) VALUES (1,'2025-14'),(1,'2025-03-15');
+INSERT INTO "dayOff" ("barberId",date) VALUES (1,'2025-03-14'),(1,'2025-03-15');
 
 INSERT INTO "users" (name,number) VALUES ('Victor','41999024886'),('Matheus','41999024882');
 
-INSERT INTO "schedules" ("barberId",date,"userId","serviceId", time, "endTime", status) VALUES (1,'2025-13-01',1,3,'15:30','16:10','AGENDADO'),(1,'2025-13-01',1,3,'17:30','18:10','AGENDADO'),(1,'2025-03-12',1,3,'15:30','16:10','AGENDADO');
+INSERT INTO "schedules" ("barberId",date,"userId","serviceId", time, "endTime", status) VALUES (1,'2025-03-16',1,3,'15:30','16:10','AGENDADO'),(1,'2025-03-16',1,3,'17:30','18:10','AGENDADO'),(1,'2025-03-17',1,3,'15:30','16:10','AGENDADO'),(1,'2025-03-12',1,3,'12:00','12:40','AGENDADO');

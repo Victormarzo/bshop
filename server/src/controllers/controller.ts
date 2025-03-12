@@ -115,11 +115,10 @@ export async function getFullSchedule(req: Request, res: Response) {
     const barberId = Number(req.body.barberId);
     const date = req.body.date;
     const time = req.body.time;
-    console.log(req.body, serviceId, barberId, date, time)
     if (!serviceId || !barberId || !date || !time){
       res.sendStatus(httpStatus.NOT_FOUND)}
     try {
-        const scheduleList = await service.getSchedule(serviceId, barberId, date)
+        const scheduleList = await service.getSchedule(barberId, date)
         res.status(httpStatus.OK).send(scheduleList)
     } catch (error) {
         console.log(error)

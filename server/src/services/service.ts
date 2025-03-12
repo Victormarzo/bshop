@@ -47,14 +47,21 @@ export async function getBarbersByService(serviceId: number): Promise<Service[]>
     return barberList
 }
 
-export async function getSchedule(serviceId: number, barberId: number, date: string) {
+export async function getSchedule(barberId: number, date: string) {
     const dayOffList = await repository.getDayOff(barberId)
+    updateStates()
     const dayList = await repository.checkWorkingInterval(barberId)
     const newDayOffList = getDayOffList(dayOffList)
     const week = getWeek(date, dayList.dayList, newDayOffList)
-    console.log(1,week)
+    const scheduleList = await repository.getScheduleList()
+    return {scheduleList,week}
 }
 
+async function updateStates() {
+    const today = dayjs().format("YYYY-MM-DD")
+    const now = dayjs().format("HH:mm")
+    await repository.updateStates(today,now)    
+}
 function getDayOffList(dayOffList: Date[]) {
     let newDayOffList = []
     for (let i = 0; i < dayOffList.length; i++) {
@@ -68,7 +75,7 @@ function getWeek(date: string, dayList: string, dayOffList: string[]) {
     const startDay = dayjs(date, "DD-MM-YYYY")
     for (let i = 0; i < 10; i++) {
         let dayI = startDay.add(i, 'day')
-        let dayDate = dayI.format("DD-MM-YYYY")
+        let dayDate = dayI.format("YYYY-MM-DD")
         let weekDay = dayI.day().toString()
         if (dayList.includes(weekDay) && !dayOffList.includes(dayDate)) {
             workWeek.push(dayDate)
@@ -98,7 +105,7 @@ export async function barberSignIn(email: string, password: string) {
 
 export async function createSchedule(newSchedule: newSchedule) {
     const {userId,barberId,date,serviceId,time}= newSchedule   
-
+    const formatedDate = formatDate(date);
     const checkUser = await repository.checkUserById(userId)
     if (checkUser.length == 0) {
         throw error("usuario não cadastrado")
@@ -115,7 +122,7 @@ export async function createSchedule(newSchedule: newSchedule) {
     }
 
     const endTime = timeCalculator(newSchedule.time,service[0].duration)
-    const daySchedule = await repository.checkDayVacancy(date,time,endTime)
+    const daySchedule = await repository.checkDayVacancy(formatedDate,time,endTime)
     
     let vacancy
     if(daySchedule.length>0){
@@ -138,11 +145,16 @@ export async function createSchedule(newSchedule: newSchedule) {
     if(vacancy = false){
         throw error("horario nao esta livre")
     }
-    const create = await repository.createSchedule({userId,barberId,date,serviceId,time,endTime})
+    const create = await repository.createSchedule({userId,barberId,date:formatedDate,serviceId,time,endTime})
     return create;
     
 }
 
+function formatDate(date:string){
+    const formatedDate = dayjs(date, "DD-MM-YYYY").format("YYYY-MM-DD")
+    console.log(formatedDate)
+    return formatedDate
+}
 function timeCalculator(time: string, duration: number) {
     const endTime = dayjs(time, "HH:mm").add(duration, "minutes").format('HH:mm')
     return endTime
