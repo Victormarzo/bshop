@@ -6,6 +6,7 @@ import dayjs from "dayjs";;
 import dayOfYear from "dayjs/plugin/dayOfYear";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { duplicatedNumberError } from "../errors";
 
 const JWT_SECRET = "top_secret"
 
@@ -184,8 +185,15 @@ function timeCalculator(time: string, duration: number) {
 }
 
 export async function createUser(user: NewUser) {
+    const newUser = await service.getUserByNumber(user.number)
+    if(newUser.length !=0){
+        throw duplicatedNumberError()
+    }
     const create = await repository.createUser(user)
-    return create;
+    if(create.length !=0){
+        return create[0];
+    }
+    
 }
 export const service = {
     createBarber,

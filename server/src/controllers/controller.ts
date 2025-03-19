@@ -115,8 +115,9 @@ export async function getFullSchedule(req: Request, res: Response) {
     const barberId = Number(req.body.barberId);
     const date = req.body.date;
     const time = req.body.time;
-    if (!serviceId || !barberId || !date || !time){
-      res.sendStatus(httpStatus.NOT_FOUND)}
+    if (!serviceId || !barberId || !date || !time) {
+        res.sendStatus(httpStatus.NOT_FOUND)
+    }
     try {
         const scheduleList = await service.getSchedule(barberId, date)
         res.status(httpStatus.OK).send(scheduleList)
@@ -126,10 +127,10 @@ export async function getFullSchedule(req: Request, res: Response) {
     }
 }
 
-export async function createSchedule(req: Request, res: Response){
+export async function createSchedule(req: Request, res: Response) {
     console.log('createScheduless')
-    const newScheduleBody = req.body 
-    if (!newScheduleBody.barberId || !newScheduleBody.userId ||!newScheduleBody.time || !newScheduleBody.serviceId || !newScheduleBody.date){
+    const newScheduleBody = req.body
+    if (!newScheduleBody.barberId || !newScheduleBody.userId || !newScheduleBody.time || !newScheduleBody.serviceId || !newScheduleBody.date) {
         res.sendStatus(httpStatus.BAD_REQUEST)
     }
     try {
@@ -137,36 +138,40 @@ export async function createSchedule(req: Request, res: Response){
         res.status(httpStatus.CREATED).send(newSchedule)
     } catch (error) {
         console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST) 
+        res.sendStatus(httpStatus.BAD_REQUEST)
     }
 }
 
 export async function getUserByNumber(req: Request, res: Response) {
-    console.log('getUserByNumber')
-    const userNumber = req.body
+    const {userNumber} = req.body
     try {
         const user = await service.getUserByNumber(userNumber)
         res.status(httpStatus.OK).send(user)
     } catch (error) {
         console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST) 
+        res.sendStatus(httpStatus.BAD_REQUEST)
     }
 }
 
-export async function createUser(req: Request, res: Response){
-    console.log('createUser')
-    const newUser = req.body;
-    console.log(newUser)
-    try {
-        const user = await service.getUserByNumber(newUser.number)
-        if(user.length !=0){
-           res.sendStatus(httpStatus.BAD_REQUEST) 
+export async function createUser(req: Request, res: Response) {
+    const { name, number } = req.body;
+    if (!name || !number || name.length == 0 || number.length == 0) {
+        res.sendStatus(httpStatus.BAD_REQUEST)
+    }
+    else {
+
+        try {
+            const createUser = await service.createUser({ name, number })
+            res.status(httpStatus.CREATED).send(createUser);
+
+        } catch (error) {
+            if (error.name === "DuplicatedNumberError") {
+                 res.sendStatus(httpStatus.CONFLICT);
+              }else{
+                res.sendStatus(httpStatus.BAD_REQUEST);
+              }
+               
         }
-        const createUser = await service.createUser(newUser)
-        res.status(httpStatus.CREATED).send(createUser);
-    } catch (error) {
-        console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST) 
     }
 }
 

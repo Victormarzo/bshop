@@ -55,3 +55,8 @@ export type Schedule = {
 
 export type newSchedule = Omit <Schedule, "id" | "status" | "endTime" >
 export type newScheduleWithEnd = Omit <Schedule, "id" | "status" >
+
+export type ApplicationError = {
+    name: string;
+    message: string;
+  };

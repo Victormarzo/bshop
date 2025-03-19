@@ -6,8 +6,10 @@
       "esModuleInterop": true,
       "rootDir": "./src",
       "strict": true,
-       "moduleResolution": "node"
+      "moduleResolution": "node",
+      "useUnknownInCatchVariables": false
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "include": ["src/**/*","tests"],
+    "exclude": ["node_modules"],
+    
   }

@@ -173,7 +173,6 @@ async function createUser({ number, name }: NewUser) {
         RETURNING *
         ;`, [number, name]
     )
-    console.log(response, "aopecas")
     return response.rows;
 }
 
@@ -186,6 +185,7 @@ async function checkDayVacancy(date: string, startTime: string, endTime: string)
     )
     return response.rows;
 }
+
 async function createSchedule(newSchedule: newScheduleWithEnd) {
     const response = await pool.query(
         `
@@ -215,6 +215,7 @@ async function updateStates(today:string,now:string){
         ;`,[today,now]
     )    
 }
+
 async function getScheduleList() {
     const response = await pool.query(
         `
