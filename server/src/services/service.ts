@@ -6,7 +6,7 @@ import dayjs from "dayjs";;
 import dayOfYear from "dayjs/plugin/dayOfYear";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { duplicatedNumberError } from "../errors";
+import { duplicatedNumberError, notFoundError } from "../errors";
 
 const JWT_SECRET = "top_secret"
 
@@ -88,9 +88,22 @@ function getWeek(date: string, dayList: string, dayOffList: string[]) {
 
 export async function getUserByNumber(number: string) {
     const user = await repository.checkUserByNumber(number)
-    return user;
+    if(user.length ==0){
+        throw notFoundError()
+    }else{
+        return user;
+    }
+    
 }
 
+async function checkUser(number:string){
+    const user = await repository.checkUserByNumber(number)
+    if(user.length ==0){
+        return []
+    }else{
+        return user;
+    }
+}
 export async function barberSignIn(email: string, password: string) {
     const barber = await repository.findBarberByEmail(email);
     if (!barber) throw error("erro de login");
@@ -185,7 +198,8 @@ function timeCalculator(time: string, duration: number) {
 }
 
 export async function createUser(user: NewUser) {
-    const newUser = await service.getUserByNumber(user.number)
+
+    const newUser = await checkUser(user.number) 
     if(newUser.length !=0){
         throw duplicatedNumberError()
     }

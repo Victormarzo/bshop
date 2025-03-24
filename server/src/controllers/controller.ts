@@ -143,14 +143,23 @@ export async function createSchedule(req: Request, res: Response) {
 }
 
 export async function getUserByNumber(req: Request, res: Response) {
-    const {userNumber} = req.body
-    try {
-        const user = await service.getUserByNumber(userNumber)
-        res.status(httpStatus.OK).send(user)
-    } catch (error) {
-        console.log(error)
+    const {userNumber} = req.body;
+
+    if(!userNumber || userNumber.length==0){
         res.sendStatus(httpStatus.BAD_REQUEST)
+    }else{
+        try {
+            const user = await service.getUserByNumber(userNumber)
+            res.status(httpStatus.OK).send(user)
+        } catch (error) {
+            if (error.name === "NotFoundError") {
+                res.sendStatus(httpStatus.NOT_FOUND);
+             }else{
+                res.sendStatus(httpStatus.BAD_REQUEST);
+             }
+        }
     }
+    
 }
 
 export async function createUser(req: Request, res: Response) {
@@ -159,7 +168,6 @@ export async function createUser(req: Request, res: Response) {
         res.sendStatus(httpStatus.BAD_REQUEST)
     }
     else {
-
         try {
             const createUser = await service.createUser({ name, number })
             res.status(httpStatus.CREATED).send(createUser);
