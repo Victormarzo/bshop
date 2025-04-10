@@ -31,31 +31,38 @@ export async function signBarberIn(req: Request, res: Response) {
 }*/
 
 export async function createBarber(req: Request, res: Response) {
-    console.log('createBarber')
-    const barber = req.body
-    try {
-        const newBarber = await service.createBarber(barber);
-        if (newBarber) {
-            res.sendStatus(httpStatus.CREATED)
-        }
-    }
-    catch (error) {
-        console.log(error)
+    const { number, password, name, email } = req.body
+    if (!number || !password || !name || !email){
         res.sendStatus(httpStatus.BAD_REQUEST)
-        //unauthorized
-        //badrequest
+    }else{
+        try {
+            const newBarber = await service.createBarber({ number, password, name, email });
+            if (newBarber) {
+                res.sendStatus(httpStatus.CREATED)
+            }
+        }
+        catch (error) {
+            if (error.name === "DuplicatedEmailError") {
+                res.sendStatus(httpStatus.CONFLICT);
+            } else {
+                res.sendStatus(httpStatus.BAD_REQUEST);
+            }
+
+        }
     }
 }
 
 export async function getBarbers(req: Request, res: Response) {
-    console.log('getBarber')
     try {
         const barberList = await service.getBarbers();
         res.status(httpStatus.OK).send(barberList)
 
     } catch (error) {
-        console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST)
+        if (error.name === "NotFoundError") {
+            res.sendStatus(httpStatus.NOT_FOUND);
+        } else {
+            res.sendStatus(httpStatus.BAD_REQUEST);
+        }
     }
 }
 
@@ -143,23 +150,23 @@ export async function createSchedule(req: Request, res: Response) {
 }
 
 export async function getUserByNumber(req: Request, res: Response) {
-    const {userNumber} = req.body;
+    const { userNumber } = req.body;
 
-    if(!userNumber || userNumber.length==0){
+    if (!userNumber || userNumber.length == 0) {
         res.sendStatus(httpStatus.BAD_REQUEST)
-    }else{
+    } else {
         try {
             const user = await service.getUserByNumber(userNumber)
             res.status(httpStatus.OK).send(user)
         } catch (error) {
             if (error.name === "NotFoundError") {
                 res.sendStatus(httpStatus.NOT_FOUND);
-             }else{
+            } else {
                 res.sendStatus(httpStatus.BAD_REQUEST);
-             }
+            }
         }
     }
-    
+
 }
 
 export async function createUser(req: Request, res: Response) {
@@ -174,11 +181,11 @@ export async function createUser(req: Request, res: Response) {
 
         } catch (error) {
             if (error.name === "DuplicatedNumberError") {
-                 res.sendStatus(httpStatus.CONFLICT);
-              }else{
+                res.sendStatus(httpStatus.CONFLICT);
+            } else {
                 res.sendStatus(httpStatus.BAD_REQUEST);
-              }
-               
+            }
+
         }
     }
 }

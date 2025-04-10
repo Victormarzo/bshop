@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "npx nodemon src/server.ts"
+    "dev": "npx nodemon src/server.ts",
+    "test":"jest --watch --passWithNoTests  --maxWorkers=1"
   },
   "keywords": [],
   "author": "",

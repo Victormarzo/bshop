@@ -33,14 +33,22 @@ async function getBarberById(id: number) {
 async function createBarber(barber: NewBarber) {
     const response = await pool.query(
         `
-        INSERT INTO BARBERS (name,password,number,email,role)
-        VALUES ($1,$2,$3,$4,$5);
+        INSERT INTO BARBERS (name,password,number,email)
+        VALUES ($1,$2,$3,$4);
         `
-        , [barber.name, barber.password, barber.number, barber.email, barber.role])
+        , [barber.name, barber.password, barber.number, barber.email])
 
     return response.rowCount;
 }
-
+async function findBarberByEmail ( email:string){
+    const response = await pool.query(
+        `
+        SELECT * FROM barbers 
+        WHERE email = $1
+        ;`,[email]
+    )
+    return response.rows
+}
 async function createService(service: NewService) {
     const response = await pool.query(
         `
@@ -117,7 +125,7 @@ async function getDayOff(barberId: number): Promise<Date[]> {
     return response.rows;
 }
 
-async function findBarberByEmail(email: string) {
+async function findBarberSessionByEmail(email: string) {
     const response = await pool.query(
         `SELECT * 
         FROM "barberSessions"
@@ -125,7 +133,6 @@ async function findBarberByEmail(email: string) {
         ;`,
         [email]
     )
-    console.log(findBarberByEmail, response);
     return response.rows[0];
 }
 
@@ -240,6 +247,7 @@ export const repository = {
     getDayOff,
     findBarberSession,
     createBarberSession,
+    findBarberSessionByEmail,
     findBarberByEmail,
     checkUserByNumber,
     checkUserById,

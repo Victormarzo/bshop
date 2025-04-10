@@ -6,7 +6,7 @@ import dayjs from "dayjs";;
 import dayOfYear from "dayjs/plugin/dayOfYear";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { duplicatedNumberError, notFoundError } from "../errors";
+import { duplicatedNumberError,duplicatedEmailError, notFoundError } from "../errors";
 
 const JWT_SECRET = "top_secret"
 
@@ -14,13 +14,20 @@ dayjs.extend(customParseFormat)
 dayjs.extend(dayOfYear);
 
 export async function createBarber(barber: NewBarber) {
+    const emailCheck = await repository.findBarberByEmail(barber.email)
+    if (emailCheck.length !=0) {
+        throw duplicatedEmailError()
+    }
     const create = await repository.createBarber(barber);
+    
     return create;
 }
 
 export async function getBarbers(): Promise<ClientBarber[]> {
     const barberList = await repository.getBarbers()
-    if (!barberList) throw error("nao tem lista de barbeiros");
+    if (barberList && barberList.length==0) {
+        throw notFoundError()
+    }
     return barberList;
 }
 
@@ -105,7 +112,7 @@ async function checkUser(number:string){
     }
 }
 export async function barberSignIn(email: string, password: string) {
-    const barber = await repository.findBarberByEmail(email);
+    /* const barber = await repository.findBarberSessionByEmail(email);
     if (!barber) throw error("erro de login");
     const barberId = barber.id
     const name = barber.name
@@ -114,7 +121,7 @@ export async function barberSignIn(email: string, password: string) {
     const token = jwt.sign({ barberId }, JWT_SECRET);
     await repository.createBarberSession({ token, barberId })
 
-    return { barberId, token, name }
+    return { barberId, token, name } */
 }
 
 export async function createSchedule(newSchedule: newSchedule) {

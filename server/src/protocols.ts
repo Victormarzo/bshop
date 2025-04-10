@@ -7,7 +7,7 @@ export type Barber = {
     role:string
 }
 
-export type NewBarber = Omit <Barber, "id">;
+export type NewBarber = Omit <Barber, "id"|"role">;
 
 export type ClientBarber = Omit <Barber, "password"|"email">;
 
