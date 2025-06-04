@@ -24,7 +24,6 @@ export type Service = {
     name:string,
     duration:number,
     value:number,
-    barberId:number,
 }
 
 

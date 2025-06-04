@@ -53,7 +53,7 @@ export async function createBarber(req: Request, res: Response) {
 }
 
 export async function getBarbers(req: Request, res: Response) {
-    try {
+    try { 
         const barberList = await service.getBarbers();
         res.status(httpStatus.OK).send(barberList)
 
@@ -68,17 +68,21 @@ export async function getBarbers(req: Request, res: Response) {
 
 export async function createService(req: Request, res: Response) {
     console.log('createService', req.body)
-    const service = req.body
-    try {
-        const newService = await service.createService(service);
-        if (newService) {
-            res.sendStatus(httpStatus.CREATED)
-        }
-    } catch (error) {
-        console.log(error)
+    const {name, duration, value} = req.body
+    if(!name || !duration || !value){
         res.sendStatus(httpStatus.BAD_REQUEST)
+    }else{
+        try {
+            const newService = await service.createService({name, duration, value});
+            if (newService) {
+                res.sendStatus(httpStatus.CREATED)
+            }
+        } catch (error) {
+            console.log(error)
+            res.sendStatus(httpStatus.BAD_REQUEST)
+        }
     }
-
+   
 }
 
 export async function getServices(req: Request, res: Response) {
@@ -99,8 +103,11 @@ export async function getServicesByBarber(req: Request, res: Response) {
         const serviceList = await service.getServicesByBarber(barberId);
         res.status(httpStatus.OK).send(serviceList)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST)
+       if (error.name === "NotFoundError") {
+            res.sendStatus(httpStatus.NOT_FOUND);
+        } else {
+            res.sendStatus(httpStatus.BAD_REQUEST);
+        }
     }
 }
 
@@ -111,8 +118,11 @@ export async function getBarbersByService(req: Request, res: Response) {
         const barberList = await service.getBarbersByService(serviceId);
         res.status(httpStatus.OK).send(barberList)
     } catch (error) {
-        console.log(error)
-        res.sendStatus(httpStatus.BAD_REQUEST)
+        if (error.name === "NotFoundError") {
+            res.sendStatus(httpStatus.NOT_FOUND);
+        } else {
+            res.sendStatus(httpStatus.BAD_REQUEST);
+        }
     }
 }
 

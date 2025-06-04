@@ -6,7 +6,7 @@
     "build": "npx tsc",
     "start": "node dist/server.js",
     "dev": "npx nodemon src/server.ts",
-    "test":"jest --watch --passWithNoTests  --maxWorkers=1"
+    "test":"jest --watch --passWithNoTests --detectOpenHandles --maxWorkers=1"
   },
   "keywords": [],
   "author": "",

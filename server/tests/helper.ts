@@ -20,6 +20,9 @@ export async function cleanDb() {
         DELETE FROM "dayOff";
         `)
     await pool.query(`
-        DELETE FROM "barbers";
+        DELETE FROM barbers;
+        `)
+    await pool.query(`
+        DELETE FROM services;
         `)
 }

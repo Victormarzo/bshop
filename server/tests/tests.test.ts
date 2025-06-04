@@ -4,7 +4,8 @@ import httpStatus from "http-status";
 
 import { faker } from "@faker-js/faker";
 import { cleanDb } from "./helper";
-import { createBarber, createUser } from "./factory";
+import { createBarber, createBarberService, createService, createUser } from "./factory";
+import { response } from "express";
 
 const api = supertest(app);
 
@@ -107,7 +108,6 @@ describe("POST /user", () => {
     });
 }); 
 
-
 describe("GET /barber",()=>{
    
 
@@ -144,11 +144,11 @@ describe("POST /barber", () => {
 
    it("should respond with status 400 when body is not valid", async () => {
        const invalidBody = { [faker.lorem.word()]: faker.lorem.word() };
+       console.log("QAAAAAA",invalidBody)
        const response = await api.post("/barber").send(invalidBody);
-
        expect(response.status).toBe(httpStatus.BAD_REQUEST);
    }); 
-
+   
    describe("when body is valid", () => { 
        const generateValidBody = () => ({
            name: faker.person.firstName(),
@@ -187,3 +187,128 @@ describe("POST /barber", () => {
     
    });
 });
+
+describe("POST /service", () => {
+    it("should respond with status 400 when body is not given", async () => {
+       const response = await api.post("/service");
+       expect(response.status).toBe(httpStatus.BAD_REQUEST);
+   });
+
+   it("should respond with status 400 when body is not valid", async () => {
+       const invalidBody = { [faker.lorem.word()]: faker.lorem.word() };
+       const response = await api.post("/service").send(invalidBody);
+
+       expect(response.status).toBe(httpStatus.BAD_REQUEST);
+   }); 
+
+   describe("when body is valid", () => { 
+       const generateValidBody = () => ({
+           name: faker.person.jobTitle(),
+           duration: faker.number.int(100),
+           value: faker.number.int(10000),
+       });
+       
+       it("should respond with status 201 and create service", async () => {
+        const body = generateValidBody()
+        const response = await api.post("/service").send(body)
+        expect(response.status).toBe(httpStatus.CREATED);
+       
+    })
+    
+    it("should save service on db", async () => {
+        const body = generateValidBody()
+        await api.post("/service").send(body)
+        const service = await api.get("/service")
+        expect(service.body[0]).toEqual(
+            expect.objectContaining({
+                id: expect.any(Number),
+                name: body.name,
+                duration: body.duration,
+                value:body.value
+            })
+        )
+    })
+    
+   });
+});
+
+describe("GET /barber/:barberId",()=>{
+    
+    it("should respond with 404 if the barber does not exist", async()=>{
+        const barber = await createBarber()
+        const service = await createService()
+        await createBarberService(barber.rows[0].id,service.rows[0].id)
+        const response = await api.get(`/barber/${barber.rows[0].id*2}`)
+        expect(response.status).toBe(httpStatus.NOT_FOUND)
+    })
+    it("should respond with 404 and a empty list of services when the given barber does not have one",async ()=>{
+      const barber = await createBarber()
+      await createService()
+      const response = await api.get(`/barber/${barber.rows[0].id}`)
+      expect(response.status).toBe(httpStatus.NOT_FOUND)
+    })
+ 
+    it("should respond with 200 and a list of services", async ()=>{
+        const barber = await createBarber()
+        const service = await createService()
+        const service2 = await createService()
+        await createBarberService(barber.rows[0].id,service.rows[0].id)
+        await createBarberService(barber.rows[0].id,service2.rows[0].id)
+
+        const response = await api.get(`/barber/${barber.rows[0].id}`)
+        expect(response.status).toBe(httpStatus.OK);
+        expect(response.body).toEqual(
+            expect.objectContaining([{
+                id: expect.any(Number),
+                name:service.rows[0].name,
+                value:service.rows[0].value,
+                duration:service.rows[0].duration
+            },{
+                id: expect.any(Number),
+                name:service2.rows[0].name,
+                value:service2.rows[0].value,
+                duration:service2.rows[0].duration
+            }])
+        )
+    })
+})
+
+describe("GET /service/:serviceId",()=>{
+    
+    it("should respond with 404 if the service does not exist", async()=>{
+        const barber = await createBarber()
+        const service = await createService()
+        await createBarberService(barber.rows[0].id,service.rows[0].id)
+        const response = await api.get(`/service/${service.rows[0].id*2}`)
+        expect(response.status).toBe(httpStatus.NOT_FOUND)
+    })
+    it("should respond with 404 and a empty list of barbers when there are no barbers that perform the chosen service",async ()=>{
+      await createBarber()
+      const service = await createService()
+      const response = await api.get(`/barber/${service.rows[0].id}`)
+      expect(response.status).toBe(httpStatus.NOT_FOUND)
+    })
+ 
+    it("should respond with 200 and a list of barbers", async ()=>{
+        const barber = await createBarber()
+        const barber2 = await createBarber()
+        const service = await createService()
+        await createBarberService(barber.rows[0].id,service.rows[0].id)
+        await createBarberService(barber2.rows[0].id,service.rows[0].id)
+
+        const response = await api.get(`/service/${service.rows[0].id}`)
+        console.log(response.body)
+        expect(response.status).toBe(httpStatus.OK);
+        expect(response.body).toEqual(
+            expect.objectContaining([{
+                id: expect.any(Number),
+                name:barber.rows[0].name,
+                number:barber.rows[0].number,
+            },{
+                id: expect.any(Number),
+                name:barber2.rows[0].name,
+                number:barber2.rows[0].number,
+            }])
+        )
+    })
+})

@@ -45,13 +45,21 @@ export async function getServices(): Promise<Service[]> {
 
 export async function getServicesByBarber(barberId: number): Promise<Service[]> {
     const serviceList = await repository.getServicesByBarber(barberId)
-    if (!serviceList) throw error("nao tem lista de servicos")
+    if (!serviceList || serviceList.length == 0) {
+        console.log(serviceList)
+        throw notFoundError()
+    }
+    
     return serviceList
 }
 
 export async function getBarbersByService(serviceId: number): Promise<Service[]> {
     const barberList = await repository.getBarbersByService(serviceId)
-    if (!barberList) throw error("nao tem lista de barbeiros")
+    console.log(barberList)
+    if (!barberList || barberList.length == 0) {
+        console.log(barberList)
+        throw notFoundError()
+    }
     return barberList
 }
 

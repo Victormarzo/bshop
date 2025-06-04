@@ -27,7 +27,6 @@ async function getBarberById(id: number) {
         "SELECT name,number FROM BARBERS WHERE id = $1;", [id]
     )
     return response.rows
-    // horario
 }
 
 async function createBarber(barber: NewBarber) {
@@ -40,6 +39,7 @@ async function createBarber(barber: NewBarber) {
 
     return response.rowCount;
 }
+
 async function findBarberByEmail ( email:string){
     const response = await pool.query(
         `
@@ -66,7 +66,8 @@ async function getServices() {
         // FROM SERVICES s 
         // JOIN BARBERS b ON s."barberId" = b.id;`)
         "SELECT * FROM SERVICES;")
-    return response.rows;
+        console.log("BBBBBBBBBBBBBB", response.rows)
+        return response.rows;
 }
 
 async function getServiceById(serviceId: number) {
@@ -232,7 +233,10 @@ async function getScheduleList() {
         return response.rows
 }
 async function test() {
-    const test = await pool.query("SELECT * FROM schedules ")
+    //const test = await pool.query("DELETE  FROM services ;")
+    //const test = await pool.query("INSERT into services (name, value, duration) values ('lavagem',1000,25);")
+        const test = await pool.query("SELECT * FROM services; ")
+
     console.log(test.rows)
 }
 export const repository = {
